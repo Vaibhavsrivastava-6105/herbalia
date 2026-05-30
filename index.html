@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Herbalia AI Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+  <link rel="stylesheet" href="css/base.css?v=42">
+  <link rel="stylesheet" href="css/screens/home.css?v=42">
+  <link rel="stylesheet" href="css/screens/chat.css?v=42">
+  <link rel="stylesheet" href="css/screens/medicine.css?v=42">
+  <link rel="stylesheet" href="css/screens/scanner.css?v=42">
+</head>
+<body>
+
+  <!-- Phone Simulator Frame -->
+  <div class="device-frame">
+    <div class="device-screen" id="app-container">
+      
+      <!-- Screen 1: Home -->
+      <div id="screen-home" class="screen active">
+        <div class="header-green">
+          <div class="top-bar">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <div style="width:36px; height:36px; background:#fff; border-radius:50%; display:flex; justify-content:center; align-items:center; overflow:hidden;">
+                <img src="assets/logo.png" width="36" height="36" style="object-fit:cover;">
+              </div>
+              <span style="font-weight:600; font-size:16px;">Herbalia</span>
+            </div>
+            <div style="display:flex; gap:16px;">
+            </div>
+          </div>
+          <h1 style="font-size: 28px; line-height:1.2;">Scan now to<br>help plant!</h1>
+          
+          <div style="position:relative;">
+            <div class="search-bar">
+              <span class="material-icons-round">search</span>
+              <input type="text" id="home-search-input" placeholder="Search medicine, plants, articles...">
+            </div>
+            <div id="home-search-results" class="hidden" style="position:absolute; top:100%; left:0; width:100%; background:white; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.15); margin-top:8px; max-height:300px; overflow-y:auto; z-index:100; color:var(--text-dark);">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+        </div>
+
+        <div class="section-title">
+          <h3>Plant Medicines</h3>
+          <a href="#" id="link-more-medicines">More <span class="material-icons-round" style="font-size:16px;">chevron_right</span></a>
+        </div>
+        <div class="h-scroll" id="home-medicine-slider">
+          <!-- Rendered by JS -->
+        </div>
+
+        <div class="section-title">
+          <h3>Latest Articles</h3>
+          <a href="#" id="link-more-articles">More <span class="material-icons-round" style="font-size:16px;">chevron_right</span></a>
+        </div>
+        <div class="h-scroll" id="home-articles-slider">
+          <div id="home-articles-loading" style="padding:24px; text-align:center; width:100%; color:var(--primary-green);">
+            <style>@keyframes spin { 100% { transform: rotate(360deg); } }</style>
+            <span class="material-icons-round" style="animation: spin 2s linear infinite;">autorenew</span>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Screen 3: Camera -->
+      <div id="screen-camera" class="screen hidden">
+        <video class="camera-view" id="camera-feed" autoplay playsinline></video>
+        <div class="camera-ui">
+          <div class="camera-top">
+            <button class="icon-btn-transparent nav-back"><span class="material-icons-round">arrow_back</span></button>
+            <span style="font-weight:500;">Scan leafs</span>
+            <div style="display:flex; gap:16px;">
+              <span class="material-icons-round" id="btn-flip-camera" style="cursor:pointer;">flip_camera_ios</span>
+              <span class="material-icons-round" id="btn-toggle-flash" style="cursor:pointer;">flash_off</span>
+            </div>
+          </div>
+          
+          <div class="focus-frame">
+            <div class="brackets">
+              <div></div>
+            </div>
+          </div>
+          
+          <div class="camera-controls">
+            <div style="color:white; font-size:12px;">Take a shot where your plants have diseases</div>
+            <div class="mode-toggle">
+              <button id="btn-mode-oneshot" class="mode-btn active">Oneshot</button>
+              <button id="btn-mode-multiple" class="mode-btn">Multiple</button>
+            </div>
+            <div style="display:flex; justify-content:center; align-items:center; width:100%; position:relative;">
+              <input type="file" id="camera-gallery-input" accept="image/*" style="display:none;">
+              <div id="btn-camera-gallery" style="position:absolute; left:0; width:48px; height:48px; border-radius:8px; overflow:hidden; border:2px solid white; cursor:pointer;">
+                <img src="assets/mint.png" width="48" height="48" style="object-fit:cover;">
+              </div>
+              <button id="btn-capture" class="shutter-btn"><div class="shutter-inner"></div></button>
+              <span id="btn-camera-info" class="material-icons-round" style="position:absolute; right:0; color:white; font-size:28px; cursor:pointer;">error_outline</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Scanner Info Modal -->
+        <div id="camera-info-modal" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:200; justify-content:center; align-items:center; padding:24px;">
+          <div id="camera-info-content" style="background:white; border-radius:16px; padding:24px; text-align:center; position:relative;">
+            <span class="material-icons-round" id="btn-close-camera-info" style="position:absolute; top:12px; right:12px; cursor:pointer; color:var(--text-gray);">close</span>
+            <div style="width:48px; height:48px; background:#e8f5e9; border-radius:50%; display:flex; justify-content:center; align-items:center; margin:0 auto 16px; color:var(--primary-green);">
+              <span class="material-icons-round" style="font-size:24px;">document_scanner</span>
+            </div>
+            <h3 style="margin-bottom:8px; color:var(--text-dark);">How it works</h3>
+            <p style="font-size:14px; color:var(--text-gray); line-height:1.5; margin-bottom:0;">
+              Our AI scanner will analyze the leaf's texture, color, and spot patterns. It cross-references these visual symptoms with thousands of known plant diseases to provide you with an accurate diagnosis and treatment plan!
+            </p>
+          </div>
+        </div>
+        
+        <!-- Multi-Image Gallery Overlay -->
+        <div id="multi-gallery-overlay" style="display:none; position:absolute; bottom:0; left:0; width:100%; height:auto; background:rgba(0,0,0,0.85); z-index:150; padding:24px; border-top-left-radius:24px; border-top-right-radius:24px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; color:white; margin-bottom:16px;">
+            <span style="font-weight:600;">Captured Images (<span id="multi-count">1</span>/5)</span>
+          </div>
+          <div id="multi-gallery-thumbnails" style="display:flex; gap:12px; overflow-x:auto; padding-bottom:12px;">
+            <!-- Thumbnails inserted dynamically -->
+          </div>
+          <div style="display:flex; gap:16px; margin-top:16px;">
+            <button id="btn-multi-add" style="flex:1; padding:16px; background:rgba(255,255,255,0.2); color:white; border:none; border-radius:16px; display:flex; justify-content:center; align-items:center; gap:8px; font-weight:600; cursor:pointer;">
+              <span class="material-icons-round">add_a_photo</span> Add
+            </button>
+            <button id="btn-multi-analyze" style="flex:1; padding:16px; background:var(--primary-green); color:white; border:none; border-radius:16px; display:flex; justify-content:center; align-items:center; gap:8px; font-weight:600; cursor:pointer;">
+              <span class="material-icons-round">travel_explore</span> Research
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Screen 4: Result -->
+      <div id="screen-result" class="screen hidden">
+        <div class="header-green" style="padding-bottom: 24px; border-radius:0;">
+          <div class="top-bar" style="margin-bottom:0;">
+            <button class="icon-btn-transparent nav-back"><span class="material-icons-round">arrow_back</span></button>
+            <h2 style="font-size: 18px;">Back Scan</h2>
+            <div style="display:flex; gap:16px;">
+              <span class="material-icons-round">share</span>
+            </div>
+          </div>
+        </div>
+        
+
+        <!-- AI Result View -->
+        <div id="view-ai-result" class="diagnosis-card" style="margin-top:24px;">
+          <div class="diagnosis-header">
+            <img src="assets/ginger.png" class="diagnosis-img">
+            <div>
+              <div class="diagnosis-title">
+                <span class="material-icons-round" style="font-size:18px;">warning</span> Rust fungus
+              </div>
+              <div class="diagnosis-subtitle">
+                <span class="material-icons-round" style="font-size:16px; color:var(--primary-green);">eco</span> Monstera
+              </div>
+              <div class="diagnosis-subtitle" style="margin-top:4px;">
+                <span class="material-icons-round" style="font-size:16px; color:var(--primary-green);">compost</span> Deliciosa Monstera
+              </div>
+            </div>
+          </div>
+          
+          <div style="display:flex; justify-content:flex-end; color:var(--text-gray); font-size:12px; margin-bottom:16px;">
+            <span class="material-icons-round" style="font-size:16px;">chevron_left</span> 1/10 <span class="material-icons-round" style="font-size:16px;">chevron_right</span>
+          </div>
+          
+          <div class="diagnosis-text">
+            <h4 style="margin-top:0;">Diagnosis:</h4>
+            <p style="font-size:13px; line-height:1.5;">1. Symptoms: Look for rust-like symptoms, including raised pustules or lesions on the undersides of leaves. These pustules may release rust-colored spores.<br><br>2. Visual Inspection: Examine the affected plant parts closely. Rust infections often present as orange, brown...</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Screen 5: Chat/Consultation -->
+      <div id="screen-chat" class="screen hidden" style="background:white; height:100%; padding-bottom:0; display:flex; flex-direction:column; overflow:hidden;">
+        <div class="header-green" style="padding-bottom: 24px; border-radius:0;">
+          <div class="top-bar" style="margin-bottom:0;">
+            <button class="icon-btn-transparent nav-back"><span class="material-icons-round">arrow_back</span></button>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <div style="width:32px; height:32px; border-radius:50%; background:var(--primary-green); overflow:hidden; display:flex; justify-content:center; align-items:center;">
+                <span class="material-icons-round" style="color:white; font-size:20px;">smart_toy</span>
+              </div>
+              <div>
+                <div style="font-size:16px; font-weight:600;">Herbalia AI Assistant</div>
+                <div style="font-size:10px; display:flex; align-items:center; gap:4px; color:rgba(255,255,255,0.8);">Always here to help</div>
+              </div>
+            </div>
+            <div style="display:flex; gap:16px;">
+              <!-- Call icons removed -->
+            </div>
+          </div>
+        </div>
+        
+        <div class="chat-container" id="chat-messages-container" style="flex:1; overflow-y:auto; padding-bottom:24px;">
+          <div class="chat-bubble chat-left">
+            Hello! I am the Herbalia AI Assistant. You can ask me any questions about your plants, or upload an image of a sick leaf and I'll analyze it for you!
+            <div class="chat-time">Now</div>
+          </div>
+        </div>
+        
+        <div class="chat-input">
+          <input type="file" id="chat-gallery-input" accept="image/*" style="display:none;">
+          <span class="material-icons-round" id="chat-camera-btn" style="cursor:pointer; color:var(--text-gray);">photo_camera</span>
+          <span class="material-icons-round" id="chat-gallery-btn" style="cursor:pointer; color:var(--text-gray);">image</span>
+          <input type="text" id="chat-input-field" placeholder="Ask me about your plants...">
+          <span class="material-icons-round" id="chat-send-btn" style="color:var(--primary-green); cursor:pointer;">send</span>
+        </div>
+      </div>
+
+      <!-- Screen 6: Articles List -->
+      <div id="screen-articles-list" class="screen hidden" style="background:white;">
+        <div class="top-bar" style="padding: 50px 24px 0; margin-bottom: 16px;">
+          <button class="icon-btn-transparent dark nav-back"><span class="material-icons-round">arrow_back</span></button>
+          <h2 style="font-size: 18px; color: var(--text-dark);">Latest Articles</h2>
+          <div style="width:24px;"></div>
+        </div>
+        <div style="padding: 0 24px 16px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <span style="font-size:14px; font-weight:500; color:var(--text-dark);">Sort by:</span>
+            <select id="article-sort" style="padding:8px 12px; border-radius:12px; border:1px solid #e0e0e0; background:var(--bg-gray); font-family:'Outfit'; outline:none;">
+              <option value="latest">Latest</option>
+              <option value="featured">Featured</option>
+              <option value="likes">Most Liked</option>
+            </select>
+          </div>
+          <div id="articles-container" style="display:flex; flex-direction:column; gap:16px;">
+            <div id="articles-loading" style="text-align:center; padding:40px; color:var(--primary-green);">
+              <style>@keyframes spin { 100% { transform: rotate(360deg); } }</style>
+              <span class="material-icons-round" style="font-size: 32px; animation: spin 2s linear infinite;">autorenew</span>
+              <div style="margin-top:16px; font-weight:500;">Fetching latest news...</div>
+            </div>
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Screen 7: Article Reader -->
+      <div id="screen-article-reader" class="screen hidden" style="background:white;">
+        <div class="top-bar" style="padding: 50px 24px 0; margin-bottom: 0;">
+          <button class="icon-btn-transparent dark nav-back"><span class="material-icons-round">arrow_back</span></button>
+          <div style="display:flex; gap:16px;">
+            <span class="material-icons-round" style="color:var(--text-dark);">share</span>
+          </div>
+        </div>
+        <img id="reader-hero" src="assets/chamomile.png" style="width:100%; height:220px; object-fit:cover; margin-bottom:24px;">
+        <div style="padding: 0 24px 40px;">
+          <div id="reader-tag" style="font-size:12px; color:var(--accent-orange); font-weight:600; margin-bottom:8px;">#science</div>
+          <h1 id="reader-title" style="font-size:22px; line-height:1.3; margin-bottom:12px;">Title</h1>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; border-bottom:1px solid #eee; padding-bottom:16px;">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div id="reader-source" style="font-weight:500; font-size:14px;">Source Name</div>
+              <div style="width:4px; height:4px; background:#ccc; border-radius:50%;"></div>
+              <div id="reader-date" style="font-size:12px; color:var(--text-gray);">Oct 12, 2026</div>
+            </div>
+            <button id="btn-translate-article" style="background:var(--bg-gray); border:none; padding:6px 12px; border-radius:12px; font-family:'Outfit'; font-size:12px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:4px;"><span class="material-icons-round" style="font-size:14px;">translate</span> Hindi</button>
+          </div>
+          <div id="reader-content" style="font-size:15px; color:var(--text-dark); line-height:1.6; margin-bottom: 24px;">
+            Content goes here.
+          </div>
+          <a id="reader-url" href="#" target="_blank" style="display:block; width:100%; text-align:center; padding:16px; background:var(--primary-green); color:white; font-weight:600; border-radius:12px; text-decoration:none;">
+            Read Full Source <span class="material-icons-round" style="font-size:16px; vertical-align:middle; margin-left:4px;">open_in_new</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Screen 8: Medicine Directory -->
+      <div id="screen-medicine-list" class="screen hidden" style="background:white;">
+        <div class="top-bar" style="padding: 50px 24px 0; margin-bottom: 16px;">
+          <button class="icon-btn-transparent dark nav-back"><span class="material-icons-round">arrow_back</span></button>
+          <h2 style="font-size: 18px; color: var(--text-dark);">Plant Medicines</h2>
+          <div style="width:24px;"></div>
+        </div>
+        
+        <div style="padding: 0 24px 16px;">
+          <div class="search-bar" style="margin-bottom: 16px;">
+            <span class="material-icons-round">search</span>
+            <input type="text" id="medicine-search-input" placeholder="Search medicines or plants...">
+          </div>
+          
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <span style="font-size:14px; font-weight:500; color:var(--text-dark);">Sort by:</span>
+            <select id="medicine-sort" style="padding:8px 12px; border-radius:12px; border:1px solid #e0e0e0; background:var(--bg-gray); font-family:'Outfit'; outline:none;">
+              <option value="alpha">A-Z (Alphabetical)</option>
+              <option value="category">Category (Use)</option>
+              <option value="plant">Plant Used On</option>
+            </select>
+          </div>
+          <div id="medicine-list-container" style="display:flex; flex-direction:column; gap:16px;">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Screen 9: Medicine Reader -->
+      <div id="screen-medicine-reader" class="screen hidden" style="background:white; overflow-y:auto;">
+        <div class="top-bar" style="padding: 50px 24px 0; margin-bottom: 0;">
+          <button class="icon-btn-transparent dark nav-back"><span class="material-icons-round">arrow_back</span></button>
+          <div style="display:flex; gap:16px;">
+            <span class="material-icons-round" style="color:var(--text-dark);">share</span>
+          </div>
+        </div>
+        <img id="med-reader-hero" src="assets/mint.png" style="width:100%; height:220px; object-fit:cover; margin-bottom:24px;">
+        <div style="padding: 0 24px 40px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <div id="med-reader-tag" style="font-size:12px; color:var(--accent-orange); font-weight:600;">Category</div>
+            <button id="btn-translate-medicine" style="background:var(--bg-gray); border:none; padding:6px 12px; border-radius:12px; font-family:'Outfit'; font-size:12px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:4px;"><span class="material-icons-round" style="font-size:14px;">translate</span> Hindi</button>
+          </div>
+          <h1 id="med-reader-title" style="font-size:22px; line-height:1.3; margin-bottom:24px;">Medicine Name</h1>
+          
+          <h3 style="font-size:16px; margin-bottom:8px; color:var(--primary-green);">What is it used for?</h3>
+          <div id="med-reader-usedfor" style="font-size:15px; color:var(--text-dark); line-height:1.6; margin-bottom: 24px;">
+            Description goes here.
+          </div>
+          
+          <h3 style="font-size:16px; margin-bottom:8px; color:var(--primary-green);">Plants Used On</h3>
+          <div id="med-reader-plants" style="font-size:15px; color:var(--text-dark); line-height:1.6; margin-bottom: 24px; padding:12px; background:var(--bg-gray); border-radius:12px;">
+            Plant list goes here.
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Navigation -->
+      <nav class="bottom-nav">
+        <button class="nav-item active" id="nav-home">
+          <span class="material-icons-round">home</span>
+          <span>Home</span>
+        </button>
+        <div class="nav-fab-container">
+          <button class="nav-fab" id="nav-scan">
+            <span class="material-icons-round" style="font-size:32px;">document_scanner</span>
+          </button>
+        </div>
+        <button class="nav-item" id="nav-consult">
+          <span class="material-icons-round">chat_bubble_outline</span>
+          <span>Consult</span>
+        </button>
+      </nav>
+
+    </div>
+  </div>
+
+  <!-- TensorFlow.js and TFLite -->
+  <!-- Gemini API Settings Modal -->
+  <div id="settings-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
+    <div style="background:white; padding:24px; border-radius:16px; width:90%; max-width:400px; box-shadow:0 8px 32px rgba(0,0,0,0.2);">
+      <h3 style="margin-top:0; color:#333;">Gemini API Settings</h3>
+      <p style="font-size:14px; color:#666; margin-bottom:16px;">
+        To unlock Universal Plant Detection for all plant species, please enter a free Google Gemini API key.
+      </p>
+      <input type="password" id="gemini-api-key-input" placeholder="AIzaSy..." style="width:100%; padding:12px; border:1px solid #ccc; border-radius:8px; margin-bottom:16px; font-family:monospace;">
+      <div style="display:flex; justify-content:flex-end; gap:12px;">
+        <button id="btn-close-settings" style="padding:10px 16px; background:none; border:none; color:#666; font-weight:600; cursor:pointer;">Cancel</button>
+        <button id="btn-save-settings" style="padding:10px 16px; background:var(--primary-green); color:white; border:none; border-radius:8px; font-weight:600; cursor:pointer;">Save Key</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-tflite/dist/tf-tflite.min.js"></script>
+  
+  <script src="js/data/database.js?v=55"></script>
+  <script src="js/ui/nav.js?v=43"></script>
+  <script src="js/ui/camera.js?v=57"></script>
+  <script src="js/ui/home.js?v=55"></script>
+  <script src="js/api/chat.js?v=59"></script>
+  <script src="js/ui/medicine.js?v=43"></script>
+</body>
+</html>
